@@ -12,10 +12,15 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 
 def predict_img(img, img_width, img_height, model):
     print("predicting...")
+    model.compile(loss='categorical_crossentropy',
+              optimizer='adam'  ,
+              metrics=['accuracy'])
+    model.load_weights('BR_CNN_model_GUALANDI.h5')
     img = cv2.resize(img, (img_width, img_height)) 
     img = img/255.0
     img = img.reshape((1,) + img.shape)
     pred = model.predict(img, batch_size= 1)
+    #print pred
     classes = np.argmax(pred)
     return classes
 
@@ -37,7 +42,7 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
                 correct_p = correct_p + 1
 
     print(correct_p, " correct prediction on", c , "total tests")
-    print((correct_p * 100) / c, "success %")
+    print((correct_p * 100) / c, "%", "success ")
             #print("array img", images)
 
 def istantiate_model(input_shape):
