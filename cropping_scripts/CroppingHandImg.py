@@ -14,8 +14,8 @@ base_val = [21, 3, 1]
 
 # [opening, dilation, erosion]
 alphabet_settings = {
-    "a" : [50, 1, 1], #[45,20,1] per tutte, [50,20,1] per a_15, a_14, a_33, a_30 
-    "b" : [50, 20, 1],
+    "a" : [95, 5, 1], #[45,20,1] per tutte, [50,20,1] per a_15, a_14, a_33, a_30 
+    "b" : [50, 1, 1],
 	#here
     "c" : [50, 1, 1],
     "d" : [21, 3, 1],
@@ -41,6 +41,10 @@ alphabet_settings = {
 
 def CroppingImg(img, img_original, filename, dir):
 	
+	#resizing imgs
+	# img = cv2.resize(img, (100, 100)) 
+	# img_original = cv2.resize(img_original, (100, 100)) 
+
 	img_original = img
 
 	# obtaining gray and thresholded img
@@ -160,7 +164,7 @@ def CroppingImg(img, img_original, filename, dir):
 	img = fg [y: y + h, x: x + w]
 
 	#directory = "CroppedImg/ResultGualandi/open" + str(i_open) + "-dilate" + str(i_dilate) + "-erode" + str(i_erode) + "__on_dataset_copia"
-	directory = "CroppedImg/ResultGualandi/dataset_recropped"
+	directory = "CroppedImg/ResultGualandi/dataset_HUZAIFA_cropped"
 	#creating directory and saving
 	dir_letter = directory + "/" + dir
 	if not os.path.exists(dir_letter):
@@ -169,43 +173,27 @@ def CroppingImg(img, img_original, filename, dir):
 
 
 
-#1 read img -> sure foreground img
-
-#reading img
-# img = cv2.imread('OriginalImg/IMG_0383.JPG')
-# if img is not None:
-# 	print("loaded image")
-# else:
-# 	print("image not loaded")
-
-# #reading and keeping original img
-# img_original = cv2.imread('OriginalImg/IMG_0383.JPG')
-# if img is not None:
-# 	print("loaded image")
-# else:
-# 	print("image not loaded")
-
 #defining folder
 # folder = "OriginalImg/ProveGualandi/4"
-folder = "../DatasetGualandi-black_copia"
+folder = "OriginalImg/ProveGualandi/DatasetGualandi_Huzaifa"
 
 #letter to modify
-letters =  ["q_21.JPG", "q_19.JPG",]
+letters =  ["b_HUZAIFA_3_bottom.JPG", "b_HUZAIFA_12_top.JPG", "b_HUZAIFA_14_front.JPG" ,"b_HUZAIFA_17_left.JPG", "b_HUZAIFA_24_left.JPG", "b_HUZAIFA_25_front.JPG"]
 
 #Read the image with OpenCV
 images = []
 c = 0
 for dir in os.listdir(folder):	
 	print("dir: ", dir)
-	if dir == "q":
+	if dir != "b" and dir != "a":
 		print("using settings: ", dir, alphabet_settings[dir], " ------------------->")    		
 		for filename in os.listdir(folder+"/"+dir):
 			img = cv2.imread(os.path.join(folder+"/"+dir,filename))
-			if filename in letters:
-				print("processing: ", filename)
-				if img is not None:
-					c = c + 1
-					print( len( letters ) - c," imgs left of", len( letters ))
-					#cropping every image	
-					CroppingImg(img,img,filename,dir)
+			#if filename in letters:
+			print("processing: ", filename)
+			if img is not None:
+				c = c + 1
+				print( len( letters ) - c," imgs left of", len( os.listdir(folder+"/"+dir )) )
+				#cropping every image	
+				CroppingImg(img,img,filename,dir)
 
