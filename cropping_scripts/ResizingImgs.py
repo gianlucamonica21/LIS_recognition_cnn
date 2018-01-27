@@ -8,7 +8,7 @@ gc.enable()
 print("gc is enabled: ", gc.isenabled())
 
 #defining folder
-folder = "../DatasetNotCropped"
+folder = "../../../FotogualandiRinominate/FotoGualandi17-01_Evisa"
 
 
 #Read the image with OpenCV
@@ -23,6 +23,6 @@ for dir in os.listdir(folder):
         #resizing
         image = cv2.resize(image, (64,64))
         #saving
-        print("to: ", '../DatasetNotCropped_RESIZED/' + dir + '/' + filename )
-        cv2.imwrite('../DatasetNotCropped_RESIZED/' + dir + '/' + filename , image)
+        print("to: ", '../../../FotogualandiResized/FotoGualandi17-01_Evisa_Resized' + dir + '/' + filename )
+        cv2.imwrite('./../../../FotogualandiResized/FotoGualandi17-01_Evisa_Resized/' + dir + '/' + filename , image)
         image = []

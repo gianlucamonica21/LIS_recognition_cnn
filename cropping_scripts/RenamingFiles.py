@@ -5,7 +5,7 @@ import time
 import os
 
 #defining folder
-folder = "../../../FotoGualandi24-01/FotoGualandi15-01_Huzaifa"
+folder = "../../../FotoGualandi24-01/FotoGualandi_Ibrahim"
 
 #renaming
 for dir in os.listdir(folder):	

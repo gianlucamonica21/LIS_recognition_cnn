@@ -7,7 +7,7 @@ import shutil
 
 
 #defining folder
-folder = "../../../FotoGualandi24-01/FotoGualandi15-01_Huzaifa"
+folder = "../../../FotoGualandi24-01/FotoGualandi_Ibrahim"
 letters = ['a', 'b', 'c']
 
 # scorro cartelle delle lettere a, b, c, ...
