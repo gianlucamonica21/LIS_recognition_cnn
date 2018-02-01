@@ -10,12 +10,32 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 
+weights_name = 'BR_CNN_model_DatasetGualandi_v3.2.h5'
+
+# creare matrice di predizione
+a = np.zeros(shape=(22,22))
+
+# array occorrenze per ogni lettera
+array_letters = np.zeros(shape=(22))
+
+# sign labels
+sign_labels = [
+ 'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y']
+
+folder = "../../Test_v2.2"
+
+# Use GPU with theano
+os.environ["THEANO_FLAGS"] = "mode=FAST_RUN, device=cuda, floatX=float32"
+
+# dimensions of our images.
+img_width, img_height = 64, 64
+
 def predict_img(img, img_width, img_height, model):
     print("predicting...")
     model.compile(loss='categorical_crossentropy',
               optimizer='adam'  ,
               metrics=['accuracy'])
-    model.load_weights('BR_CNN_model_GUALANDI.h5')
+    model.load_weights(weights_name)
     img = cv2.resize(img, (img_width, img_height)) 
     img = img/255.0
     img = img.reshape((1,) + img.shape)
@@ -28,22 +48,71 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
     #Read the image with OpenCV
     images = []
     c = 0
+    # parameti predizione
     correct_p = 0
+    f = 0
+    l = 0
+    r = 0
+    t = 0
+    b = 0
+    f_t = 0
+    l_t = 0
+    r_t = 0
+    t_t = 0
+    b_t= 0
     for dir in os.listdir(folder):  
         print("dir: ", dir)
         n = 0
         for filename in os.listdir(folder+"/"+dir):
-            print("reading: ", filename)
+            #print("reading: ", filename)
             img = cv2.imread(os.path.join(folder+"/"+dir,filename))
             pred = predict_img(img, img_width, img_height, model)
-            print ("prediction: ", sign_labels[pred])
             c = c + 1
+            if filename.find('front') != -1:
+                f_t = f_t + 1
+            elif filename.find('top') != -1:
+                t_t = t_t + 1
+            elif filename.find('left') != -1:
+                l_t = l_t + 1
+            elif filename.find('right') != -1:
+                r_t = r_t + 1
+            elif filename.find('bottom') != -1:
+                b_t = b_t + 1  
+            # se la predizione e corretta
             if sign_labels[pred] == filename[0]:
+                print ("letter: ", filename[0], " --> prediction: ", sign_labels[pred], "OK")
                 correct_p = correct_p + 1
+                if filename.find('front') != -1:
+                    f = f + 1
+                elif filename.find('top') != -1:
+                    t = t + 1
+                elif filename.find('left') != -1:
+                    l = l + 1
+                elif filename.find('right') != -1:
+                    r = r + 1
+                elif filename.find('bottom') != -1:
+                    b = b + 1
+            # se la predizione non e corretta
+            else:
+                print ("letter: ", filename[0], " --> prediction: ", sign_labels[pred], "WRONG")
+                a[ sign_labels.index(filename[0]), pred ] = a[ sign_labels.index(filename[0]), pred ] + 1
+
 
     print(correct_p, " correct prediction on", c , "total tests")
     print((correct_p * 100) / c, "%", "success ")
-            #print("array img", images)
+    print("front predicted: ", (f * 100)/ f_t, "%")
+    print("top predicted: ", (t * 100)/ t_t, "%")
+    print("bottom predicted: ", (b * 100)/ b_t, "%")
+    print("left predicted: ", (l * 100)/ l_t, "%")
+    print("right predicted: ", (r * 100)/ r_t, "%")
+    print("matrice di predizione")
+    #for i in a:
+    #    print ("indice del valore massimo ", i.max(), " :", sign_labels[np.argmax(i)])
+    for i in range(0,22):
+        print (sign_labels[i]," mispredicted as ", sign_labels[np.argmax(a[i,:])])                 
+        print ("success on ", sign_labels[i], " = ", np.sum(a[i,:]))
+
+
 
 def istantiate_model(input_shape):
     model = Sequential()
@@ -89,17 +158,7 @@ def istantiate_model(input_shape):
 
 
 
-# sign labels
-sign_labels = [
- 'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y']
 
-folder = "../../GUALANDI_DATASET_CROPPED"
-
-# Use GPU with theano
-os.environ["THEANO_FLAGS"] = "mode=FAST_RUN, device=cuda, floatX=float32"
-
-# dimensions of our images.
-img_width, img_height = 64, 64
 
 #detecting input shape
 if K.image_data_format() == 'channels_first':

@@ -70,12 +70,14 @@ os.environ["THEANO_FLAGS"] = "mode=FAST_RUN, device=cuda, floatX=float32"
 img_width, img_height = 64, 64
 
 #info
-train_data_dir = '../../GUALANDI_DATASET_CROPPED'
-validation_data_dir = '../../GUALANDI_DATASET_CROPPED'
-nb_train_samples = 682
-nb_validation_samples = 682
-epochs = 30
+train_data_dir = '../../DatasetGualandi_v3.2/train'
+validation_data_dir = '../../DatasetGualandi_v3.2/validation'
+nb_train_samples = 2647
+nb_validation_samples = 1294
+epochs = 150
 batch_size = 64
+weights_name = 'BR_CNN_model_DatasetGualandi_v3.2.h5'
+directory = "DatasetGualandi_v3.2"
 
 
 if K.image_data_format() == 'channels_first':
@@ -113,7 +115,7 @@ train_generator = train_datagen.flow_from_directory(
     target_size=(img_width, img_height),
     batch_size=batch_size,
     class_mode='categorical')
-print train_generator.class_indices
+#print train_generator.class_indices
 
 validation_generator = test_datagen.flow_from_directory(
     validation_data_dir,
@@ -130,7 +132,7 @@ history = model.fit_generator(
     validation_steps=nb_validation_samples // batch_size,
     callbacks=callbacks_list)
 
-model.save_weights('BR_CNN_model_GUALANDI.h5')
+model.save_weights(weights_name)
 
 #evaluate model
 score = model.evaluate_generator(validation_generator, nb_validation_samples//batch_size, workers=12)
@@ -173,8 +175,7 @@ print "save maximums, max_loss, max_val_loss, max_acc, max_val_acc"
 maxs = numpy.array([max_loss, max_val_loss, max_acc, max_val_acc])
 numpy.savetxt("results/maximums.txt", maxs, delimiter=",")
 
-#create directories
-directory="GUALANDI"
+
 
 if not os.path.exists("results/plot_imgs/"+directory):
     os.makedirs("results/plot_imgs/"+directory)
