@@ -5,17 +5,18 @@ import time
 import os
 
 #defining folder
-# folder = "OriginalImg/ProveGualandi/4"
-folder = "CroppedImg/ResultGualandi/dataset_recropped"
+folder = "../../../FotoGualandi24-01/FotoGualandi_Ibrahim"
 
-
-#Read the image with OpenCV
-images = []
-c = 0
+#renaming
 for dir in os.listdir(folder):	
 	print("dir: ", dir)
 	n = 0
-	for filename in os.listdir(folder+"/"+dir):
-		n = n + 1
-		print("filename:", filename)
-		os.rename(folder +"/" + dir + "/" + filename, folder + "/" + dir + "/" + dir + "_" + "IBRAHIM_" + str(n) + ".JPG")
+	for subdir in os.listdir(folder+"/"+dir):
+		print("subdir: ", subdir)
+		for filename in os.listdir(folder+"/"+dir+"/"+subdir):
+			print("filename:", filename)
+			n = n + 1					
+			file_to_rename = folder +"/" + dir + "/" + subdir + "/" + filename
+			new_name = folder + "/" + dir + "/" + subdir + "/" + dir + "_" + "IBRAHIM_" + str(n) + "_" + subdir + ".JPG"
+			os.rename(file_to_rename, new_name)			
+			#os.rename(folder +"/" + dir + "/" + subdir + "/" + filename, folder + "/" + dir + "/" + subdir + "/" + dir + "_" + "IBRAHIM_" + str(n) + "_" + subdir + ".JPG")
