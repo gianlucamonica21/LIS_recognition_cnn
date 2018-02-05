@@ -8,7 +8,7 @@ volontari (4): Evisa, Huzaifa, Ibrahim, Kenza - Composizione: 2 candidati in tra
 # 1.2 
 volontari (4): Evisa, Huzaifa, Ibrahim, Kenza - Composizione: ∀ candidato ∀ lettera, 60% train, 30% validation, 10% testing
 
-# 2 
+# 2.2
 volontari (5): Evisa, Huzaifa, Ibrahim, Kenza, Antonia - Composizione: ∀ candidato ∀ lettera, 60% train, 30% validation, 10% testing
-# 3 
+# 3.2
 volontari (6): Evisa, Huzaifa, Ibrahim, Kenza, Antonia, Mike - Composizione: ∀ candidato ∀ lettera, 60% train, 30% validation, 10% testing
