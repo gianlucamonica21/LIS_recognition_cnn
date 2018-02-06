@@ -10,7 +10,7 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 
-weights_name = 'BR_CNN_model_DatasetGualandi_v3.2.h5'
+weights_name = 'BR_CNN_model_DatasetGualandi_v4.2.h5'
 
 # creare matrice di predizione
 a = np.zeros(shape=(22,22))
@@ -22,7 +22,7 @@ array_letters = np.zeros(shape=(22))
 sign_labels = [
  'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y']
 
-folder = "../../Test_v2.2"
+folder = "../../DatasetGualandi_v4.2/testing"
 
 # Use GPU with theano
 os.environ["THEANO_FLAGS"] = "mode=FAST_RUN, device=cuda, floatX=float32"
@@ -42,7 +42,8 @@ def predict_img(img, img_width, img_height, model):
     pred = model.predict(img, batch_size= 1)
     #print pred
     classes = np.argmax(pred)
-    return classes
+    percent = np.max(pred)
+    return classes, percent
 
 def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels):
     #Read the image with OpenCV
@@ -66,7 +67,7 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
         for filename in os.listdir(folder+"/"+dir):
             #print("reading: ", filename)
             img = cv2.imread(os.path.join(folder+"/"+dir,filename))
-            pred = predict_img(img, img_width, img_height, model)
+            pred, percent = predict_img(img, img_width, img_height, model)
             c = c + 1
             if filename.find('front') != -1:
                 f_t = f_t + 1
@@ -80,7 +81,7 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
                 b_t = b_t + 1  
             # se la predizione e corretta
             if sign_labels[pred] == filename[0]:
-                print ("letter: ", filename[0], " --> prediction: ", sign_labels[pred], "OK")
+                print ("letter: ", filename[0], " --> prediction: ", sign_labels[pred], "OK with ", percent, " %")
                 correct_p = correct_p + 1
                 if filename.find('front') != -1:
                     f = f + 1
@@ -105,12 +106,12 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
     print("bottom predicted: ", (b * 100)/ b_t, "%")
     print("left predicted: ", (l * 100)/ l_t, "%")
     print("right predicted: ", (r * 100)/ r_t, "%")
-    print("matrice di predizione")
+    #print("matrice di predizione")
     #for i in a:
     #    print ("indice del valore massimo ", i.max(), " :", sign_labels[np.argmax(i)])
-    for i in range(0,22):
-        print (sign_labels[i]," mispredicted as ", sign_labels[np.argmax(a[i,:])])                 
-        print ("success on ", sign_labels[i], " = ", np.sum(a[i,:]))
+    #for i in range(0,22):
+        #print (sign_labels[i]," mispredicted as ", sign_labels[np.argmax(a[i,:])])                 
+        #print ("success on ", sign_labels[i], " = ", np.sum(a[i,:]))
 
 
 

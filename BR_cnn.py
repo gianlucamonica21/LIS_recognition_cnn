@@ -70,14 +70,14 @@ os.environ["THEANO_FLAGS"] = "mode=FAST_RUN, device=cuda, floatX=float32"
 img_width, img_height = 64, 64
 
 #info
-train_data_dir = '../../DatasetGualandi_v3.2/train'
-validation_data_dir = '../../DatasetGualandi_v3.2/validation'
-nb_train_samples = 2647
-nb_validation_samples = 1294
+train_data_dir = '../../DatasetGualandi_v4.2/train'
+validation_data_dir = '../../DatasetGualandi_v4.2/validation'
+nb_train_samples = 4323
+nb_validation_samples = 2136
 epochs = 150
 batch_size = 64
-weights_name = 'BR_CNN_model_DatasetGualandi_v3.2.h5'
-directory = "DatasetGualandi_v3.2"
+weights_name = 'BR_CNN_model_DatasetGualandi_v4.2.h5'
+directory = "DatasetGualandi_v4.2"
 
 
 if K.image_data_format() == 'channels_first':
@@ -147,15 +147,15 @@ scores = model.predict_generator(validation_generator, nb_validation_samples//ba
 loss_history = history.history["loss"]
 numpy_loss_history = numpy.array(loss_history)
 numpy.savetxt("results/loss_history(img_scn_model)"+time.strftime("%d-%m-%Y")+time.strftime("%H:%M:%S")+".txt", numpy_loss_history*100, delimiter=",")
-max_loss = numpy.amax(numpy_loss_history)
-print "MAX_LOSS: ", max_loss
+max_loss = numpy.amin(numpy_loss_history)
+print "MIN_LOSS: ", max_loss
 
 #save val_loss on txt
 val_loss_history = history.history["val_loss"]
 numpy_val_loss_history = numpy.array(val_loss_history)
 numpy.savetxt("results/val_loss_history(img_scn_model)"+time.strftime("%d-%m-%Y")+time.strftime("%H:%M:%S")+".txt", numpy_val_loss_history*100, delimiter=",")
-max_val_loss = numpy.amax(numpy_val_loss_history)
-print "MAX_VAL_LOSS: ", max_val_loss
+max_val_loss = numpy.amin(numpy_val_loss_history)
+print "MIN_VAL_LOSS: ", max_val_loss
 
 #save acc on txt
 acc_history = history.history["acc"]
