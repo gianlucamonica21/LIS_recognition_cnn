@@ -9,26 +9,41 @@ from keras import backend as K
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
+from sklearn.metrics import confusion_matrix, classification_report
+from keras.preprocessing.image import ImageDataGenerator
 
-weights_name = 'BR_CNN_model_DatasetGualandi_v4.2.h5'
+v = str(7.2)
+
+weights_name = 'weights/BR_CNN_model_DatasetGualandi_v' + v + '_250.h5'
+#weights_name = 'weights/BR_CNN_model_DatasetGualandi_v4.2.h5'
+
+# check model weigths
+
+cm_weights_name = 'results/weights-improvement-93-1.00.hdf5'
 
 # creare matrice di predizione
 a = np.zeros(shape=(22,22))
 
-# array occorrenze per ogni lettera
-array_letters = np.zeros(shape=(22))
+# letters_occ
+let_occ = np.zeros(shape=(22))
 
 # sign labels
 sign_labels = [
  'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 't', 'u', 'v', 'w', 'x', 'y']
 
-folder = "../../DatasetGualandi_v4.2/testing"
-
+#folder = "../../datasets_and_tests/GUALANDI_DATASETS/DatasetGualandi_v" + v + "/testing"
+#folder = "../../DatasetGualandi_v" + v + "/test"
+folder = "../../TestSignerIndepent_v1"
 # Use GPU with theano
 os.environ["THEANO_FLAGS"] = "mode=FAST_RUN, device=cuda, floatX=float32"
 
 # dimensions of our images.
 img_width, img_height = 64, 64
+
+#nb_validation_samples = 1099
+#nb_validation_samples = 808
+nb_validation_samples = 808
+#nb_validation_samples = 867  
 
 def predict_img(img, img_width, img_height, model):
     print("predicting...")
@@ -39,7 +54,7 @@ def predict_img(img, img_width, img_height, model):
     img = cv2.resize(img, (img_width, img_height)) 
     img = img/255.0
     img = img.reshape((1,) + img.shape)
-    pred = model.predict(img, batch_size= 1)
+    pred = model.predict(img, batch_size= 1, verbose=1)
     #print pred
     classes = np.argmax(pred)
     percent = np.max(pred)
@@ -100,7 +115,7 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
 
 
     print(correct_p, " correct prediction on", c , "total tests")
-    print((correct_p * 100) / c, "%", "success ")
+    print((correct_p * 100) / c, "%", "success on ", folder)
     print("front predicted: ", (f * 100)/ f_t, "%")
     print("top predicted: ", (t * 100)/ t_t, "%")
     print("bottom predicted: ", (b * 100)/ b_t, "%")
@@ -110,7 +125,7 @@ def read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
     #for i in a:
     #    print ("indice del valore massimo ", i.max(), " :", sign_labels[np.argmax(i)])
     #for i in range(0,22):
-        #print (sign_labels[i]," mispredicted as ", sign_labels[np.argmax(a[i,:])])                 
+        #print (sign_labels[i]," mispredicted as ", sign_labels[np.argmax(a[i,:])], " with ", np.max(a[i,:]))                 
         #print ("success on ", sign_labels[i], " = ", np.sum(a[i,:]))
 
 
@@ -170,38 +185,44 @@ else:
 #instantiate model
 model = istantiate_model(input_shape)
 
-read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam'  ,
+              metrics=['accuracy'])
+model.load_weights(weights_name)
 
-# rows = 3
-# cols = 3
-# fig, ax = plt.subplots(rows, cols, frameon=False, figsize=(7, 7))
-# fig.suptitle('Internet images', fontsize=20, y = 1.03)
-# count=0
-# for i in range(rows):
-#     for j in range(cols):
-#         all_files = os.listdir(root_dir)
-#         imgpath = os.path.join(root_dir, all_files[count])
-#         img = Image.open(imgpath)
-#         img = img.resize((img_width, img_height), Image.ANTIALIAS)
-#         ax[i][j].imshow(img)
-#         img = img_to_array(img)
-#         img = img/255.0
-#         img = img.reshape((1,) + img.shape)
-#         pred = model.predict(img, batch_size= 1)
-#         pred = pd.DataFrame(np.transpose(np.round(pred, decimals = 3)))
-#         pred = pred.nlargest(n = 3, columns = 0)
-#         pred['char'] = [list(chardict.keys())[list(chardict.values()).index(x)] for x in pred.index]
-#         charstr = ''
-#         for k in range(0,3):
-#             if k < 2:
-#                 charstr = charstr+str(pred.iloc[k,1])+': '+str(pred.iloc[k,0])+'\n'
-#             else:
-#                 charstr = charstr+str(pred.iloc[k,1])+': '+str(pred.iloc[k,0])
-#         ec = (0, .8, .1)
-#         fc = (0, .9, .2)
-#         count = count + 1
-#         ax[i][j].text(0, -10, charstr, size=10, rotation=0,
-#                 ha="left", va="top", 
-#                 bbox=dict(boxstyle="round", ec=ec, fc=fc, alpha = 0.7))
-# plt.setp(ax, xticks=[], yticks=[])
-# plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+test_datagen = ImageDataGenerator(
+    rescale=1. / 255)
+#    shear_range=0.2,
+#    zoom_range=0.2,
+#    horizontal_flip=True)
+
+testing_generator = test_datagen.flow_from_directory(
+    folder,
+    target_size=(img_width, img_height),
+    batch_size=64,
+    class_mode='categorical',
+    shuffle=False
+    save_to_dir="augmented-imgs-signer-independent-v1")
+
+
+# CONFUSION MATRIX
+Y_pred = model.predict_generator(testing_generator, nb_validation_samples // 64 + 1)
+y_pred = np.argmax(Y_pred, axis=1)
+print('Confusion Matrix')
+cm = confusion_matrix(testing_generator.classes, y_pred)
+print(cm)
+print('Classification Report')
+
+print(classification_report(testing_generator.classes, y_pred, target_names=sign_labels))
+
+#print(testing_generator.classes)
+# Show confusion matrix in a separate window
+#plt.matshow(cm)
+#plt.title('Confusion matrix')
+#plt.colorbar()
+#plt.ylabel('True label')
+#plt.xlabel('Predicted label')
+#plt.show()
+
+#read_and_pred_from_folder(folder, img_width, img_height, model, sign_labels)
+
